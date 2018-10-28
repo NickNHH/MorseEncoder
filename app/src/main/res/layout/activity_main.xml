@@ -1,0 +1,118 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+    android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/inputText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:hint="@string/text_field_hint"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/output_select_title"
+            android:inputType="textMultiLine"
+            android:focusableInTouchMode="true"
+            android:gravity="top"
+             />
+
+        <RadioGroup
+            android:id="@+id/output_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_above="@+id/translate_button"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="45dp">
+            <RadioButton
+                android:id="@+id/output_radio_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_light"
+                android:clickable="false"
+                android:onClick="setSendClickable"
+                android:textSize="18sp" />
+
+            <RadioButton
+                android:id="@+id/output_radio_vib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_vib"
+                android:clickable="false"
+                android:onClick="setSendClickable"
+                android:textSize="18sp" />
+
+            <RadioButton
+                android:id="@+id/output_radio_beep"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_beep"
+                android:clickable="false"
+                android:onClick="setSendClickable"
+                android:textSize="18sp" />
+
+        </RadioGroup>
+
+        <Button
+        android:id="@+id/translate_button"
+        android:text="@string/button_translate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="onClickTranslateInput"
+            android:layout_gravity="start|center_vertical"
+            android:layout_above="@+id/message_display"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <CheckBox
+            android:id="@+id/button_repeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_repeat"
+            android:layout_gravity="center"
+            android:layout_alignTop="@+id/translate_button"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@+id/message_display"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/send_button"
+            android:text="@string/button_send_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:onClick="onClickOutputMorse"
+            android:layout_gravity="end|center_vertical"
+            android:layout_above="@+id/message_display"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+
+        <TextView
+            android:id="@+id/message_display"
+            android:hint="@string/text_view_hint"
+            android:layout_width="match_parent"
+            android:layout_height="199dp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:textSize="18sp"
+            android:textIsSelectable="true"/>
+
+        <TextView
+            android:id="@+id/output_select_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_group_label"
+            android:layout_above="@+id/output_radio_group"
+            android:layout_centerHorizontal="true"
+            android:textSize="20sp" />
+
+
+
+</RelativeLayout>

@@ -1,5 +1,6 @@
 package larsoe4.morsetranslator;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -21,7 +22,7 @@ import java.util.TreeMap;
 public class MainActivity extends AppCompatActivity {
 
     //length of one tick in milliseconds
-    public static final int TICK_TIME = 125;
+    public static final int TICK_TIME = 500;
 
     //map of characters to their morse codes (as Strings)
     private Map<Character, String> morseValues;
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     //function to translate the text that the user has put into the text field
     //and output it to the text display
     //called when the user clicks the Translate button
-    public void onClickTranslateInput(View view){
+    public void onClickTranslateInput(View view) {
         //gets the user's input text and translates it into morse code
         EditText editText = findViewById(R.id.inputText);
         String morseString = translateText(editText.getText().toString());
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //function to check which output device the user has selected
-    private MorseDevice getSelectedDevice(){
+    private MorseDevice getSelectedDevice() {
         //finds the radio button group associated with the output device
         RadioGroup rg = findViewById(R.id.output_radio_group);
 
@@ -92,21 +93,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //get the string of morse code currently ready to be translated
-    private String getMorseString(){
+    private String getMorseString() {
         //find the message display and get its text
         TextView textView = findViewById(R.id.message_display);
 
         return textView.getText().toString();
     }
 
-    private boolean isOutputSelected(){
+    private boolean isOutputSelected() {
         RadioGroup rg = findViewById(R.id.output_radio_group);
         int checked = rg.getCheckedRadioButtonId();
 
         return (checked != -1);
     }
 
-    private boolean isTextTranslated(){
+    private boolean isTextTranslated() {
         //find the message display and get its text
         TextView textView = findViewById(R.id.message_display);
         String contents = textView.getText().toString();
@@ -118,18 +119,18 @@ public class MainActivity extends AppCompatActivity {
 
     //function to output the user's message in morse code
     //called when the user clicks the Send button
-    public void onClickOutputMorse(View view){
+    public void onClickOutputMorse(View view) {
 
         //checks which action (Play/Stop) the Send button is currently bound to and calls the relevant function
-        if (isPlaying){
+        if (isPlaying) {
             updateIsPlaying(false);
-        }else if (isOutputSelected()){
+        } else if (isOutputSelected()) {
             outputMorse();
         }
     }
 
     //function to be called when the send button is set to PLAY
-    public void outputMorse(){
+    public void outputMorse() {
 
         //create new thread to avoid interfering with other tasks
         //thread's run method contains all the code to play the morse message
@@ -143,15 +144,15 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 //plays the string through whatever output device was selected
                 //continues as long as the repeat option is selected and the app is not paused
-                do{
+                do {
                     playMorseString(morseString, morseDevice);
                     sendWordBreak(morseDevice);
-                }while(repeatOn() && isPlaying);
+                } while (repeatOn() && isPlaying);
 
                 //toggles the Send button to change its function back to Play
                 runOnUiThread(new Runnable() {
                     @Override
-                    public void run(){
+                    public void run() {
                         updateIsPlaying(false);
                     }
                 });
@@ -159,36 +160,36 @@ public class MainActivity extends AppCompatActivity {
         });
 
         updateIsPlaying();
-        try{
+        try {
             playThread.start();
-        }catch (Exception e){
+        } catch (Exception e) {
             updateIsPlaying(false);
         }
     }
 
-    private void updateIsPlaying(boolean newState){
+    private void updateIsPlaying(boolean newState) {
         isPlaying = newState;
         updateSendButton();
     }
 
-    private void updateIsPlaying(){
+    private void updateIsPlaying() {
         isPlaying = !isPlaying;
         updateSendButton();
     }
 
-    private void updateSendButton(){
+    private void updateSendButton() {
         int buttonStringID = (isPlaying) ? (R.string.button_send_stop) : (R.string.button_send_play);
         Button b = findViewById(R.id.send_button);
         b.setText(buttonStringID);
     }
 
     //function that takes a string in morse code and plays it
-    private void playMorseString(String morseString, MorseDevice morseDevice){
+    private void playMorseString(String morseString, MorseDevice morseDevice) {
         char[] morseChars = morseString.toCharArray();
         int i = 0;
 
         //goes through each char in the string, making sure that the thread is supposed to be running
-        while (i < morseChars.length && isPlaying){
+        while (i < morseChars.length && isPlaying) {
             char c = morseChars[i];
             if (c == '.') {
                 //a period (.) corresponds to a dot
@@ -199,18 +200,20 @@ public class MainActivity extends AppCompatActivity {
             } else if (c == ' ') {
                 //a space ( ) corresponds to a space between letters
                 sendSpace(morseDevice);
-            } else if (c == '\n') {
+            } else if (c == '/') {
                 //a linebreak (\n) corresponds to a space between words
                 sendWordBreak(morseDevice);
             }
 
+            //pause between letters
             waitForTime(1);
             i++;
         }
+
     }
 
     //function to send a dot in morse code
-    private void sendDot(MorseDevice morseDevice){
+    private void sendDot(MorseDevice morseDevice) {
         //a dot is 1 tick ON
 
         morseDevice.activate();
@@ -219,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //function to send a dash in morse code
-    private void sendDash(MorseDevice morseDevice){
+    private void sendDash(MorseDevice morseDevice) {
         //a dash is 3 ticks ON
 
         morseDevice.activate();
@@ -229,17 +232,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //function to send a space between characters in morse
-    private void sendSpace(MorseDevice morseDevice){
+    private void sendSpace(MorseDevice morseDevice) {
         // a space is 3 ticks OFF
         // 2 spacers before and after the wordbreak
-        // are 1 tick each, only needs to wait 5 ticks here
+        // are 1 tick each, only needs to wait 1 tick here
 
         morseDevice.deactivate();
-        waitForTime(5);
+        waitForTime(1);
     }
 
     //function to send a break between words in morse
-    private void sendWordBreak(MorseDevice morseDevice){
+    private void sendWordBreak(MorseDevice morseDevice) {
         // a wordbreak is 7 ticks OFF
         // 2 spacers before and after the wordbreak
         // are 1 tick each, only needs to wait 5 ticks here
@@ -247,11 +250,11 @@ public class MainActivity extends AppCompatActivity {
         waitForTime(5);
     }
 
-    private void waitForTime(int ticks){
+    private void waitForTime(int ticks) {
         int millis = ticks * TICK_TIME;
         try {
             Thread.sleep(millis);
-        }catch(InterruptedException e){
+        } catch (InterruptedException e) {
             Log.d("Exceptions", "waitForTime");
         }
     }
@@ -259,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
     //function checks if the program is ready to output a message in morse code
     //if it is ready, allows the user to click the Send button
-    private void setSendClickable(){
+    private void setSendClickable() {
         //gets the Send button
         Button button = findViewById(R.id.send_button);
 
@@ -268,18 +271,18 @@ public class MainActivity extends AppCompatActivity {
         // B. there is a string of morse code ready to transmit
         if (isOutputSelected() && isTextTranslated()) {
             button.setClickable(true);
-        }else {
+        } else {
             button.setClickable(false);
         }
     }
 
-    public void setSendClickable(View view){
+    public void setSendClickable(View view) {
         setSendClickable();
     }
 
     //checks to see if the user has selected the repeat option
     //returns true if the repeat option is selected, false if it is not
-    private boolean repeatOn(){
+    private boolean repeatOn() {
         CheckBox checkBox = findViewById(R.id.button_repeat);
 
         return checkBox.isChecked();
@@ -287,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
     //function to take a given String and convert it into morse code
     //returns a string of morse code
-    private String translateText(String text){
+    private String translateText(String text) {
         StringBuilder morseBuilder = new StringBuilder();
         //morse code has no distinctions between upper and lower case, so for simplicity's sake all input text is set to lowercase
         char[] charArray = text.toLowerCase().toCharArray();
@@ -295,19 +298,19 @@ public class MainActivity extends AppCompatActivity {
         boolean allCharactersTranslatable = true;
 
         //translates each character to morse code and adds it to the output string
-        for (char c : charArray){
+        for (char c : charArray) {
             String morseForChar = morseValues.get(c);
-            if (morseForChar == null){
+            if (morseForChar == null) {
                 allCharactersTranslatable = false;
                 morseBuilder.append(" ");
-            }else{
+            } else {
                 morseBuilder.append(morseForChar);
             }
 
             morseBuilder.append(" ");
         }
 
-        if (!allCharactersTranslatable){
+        if (!allCharactersTranslatable) {
             Toast.makeText(getApplicationContext(), "Not all characters have Morse encodings", Toast.LENGTH_LONG).show();
         }
 
@@ -315,12 +318,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //populate a HashMap with all the morse codes from a given stringArray in strings.xml
-    private void mapValues(int stringArrayResourceID, Map<Character, String> myMap){
+    private void mapValues(int stringArrayResourceID, Map<Character, String> myMap) {
         //creates a new String[] using a stringArray in strings.xml
         String[] stringArray = getResources().getStringArray(stringArrayResourceID);
 
         //goes through string array and adds each entry to the HashMap
-        for (String entry : stringArray){
+        for (String entry : stringArray) {
             //uses a | as a divider between the character and its corresponding code
             String[] splitResult = entry.split("\\|", 2);
             //adds entry to HashMap
@@ -336,58 +339,58 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*
-    * Look at each of the output devices and determine if they are available
-    * Make their respective buttons available to the user
-    * Instantiate the MorseDevice accessing that device
+     * Look at each of the output devices and determine if they are available
+     * Make their respective buttons available to the user
+     * Instantiate the MorseDevice accessing that device
      */
-    private void discoverDevices(){
+    private void discoverDevices() {
 
         //get each of the radio buttons to select the output device
         RadioButton rb_vib = findViewById(R.id.output_radio_vib);
         RadioButton rb_light = findViewById(R.id.output_radio_light);
         RadioButton rb_beep = findViewById(R.id.output_radio_beep);
 
-        try{
+        try {
             MorseDevice vibDevice = new VibratorMorseDevice(getApplicationContext());
             morseDeviceMap.put(R.id.output_radio_vib, vibDevice);
 
             rb_vib.setClickable(true);
 
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d("resourceAvailability", "MISSING:VIBRATOR");
             rb_vib.setClickable(false);
         }
 
 
-        try{
+        try {
             MorseDevice speakerDevice = new SpeakerMorseDevice();
             morseDeviceMap.put(R.id.output_radio_beep, speakerDevice);
 
             rb_beep.setClickable(true);
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d("resourceAvailability", "MISSING:SPEAKER");
             rb_beep.setClickable(false);
         }
 
-        try{
+        try {
             MorseDevice flashlightDevice = new FlashlightMorseDevice(getApplicationContext());
             morseDeviceMap.put(R.id.output_radio_light, flashlightDevice);
 
             rb_light.setClickable(true);
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d("resourceAvailability", "MISSING:CAMERA");
             rb_light.setClickable(false);
         }
     }
 
     /*on pause, the program will change the global static variable
-    * paused to true, allowing the sending loop to stop
-    * changing this variable first in the onPause method ensures that when the hardware is released in the onStop method,
-    * the program will not try to call any of the hardware functions, causing a crash
-    */
+     * paused to true, allowing the sending loop to stop
+     * changing this variable first in the onPause method ensures that when the hardware is released in the onStop method,
+     * the program will not try to call any of the hardware functions, causing a crash
+     */
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
 
         //let process know they are paused
@@ -398,16 +401,16 @@ public class MainActivity extends AppCompatActivity {
 
     //on stop, the program will release or otherwise delete its links to the output devices
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
 
-        for (MorseDevice morseDevice : morseDeviceMap.values()){
+        for (MorseDevice morseDevice : morseDeviceMap.values()) {
             morseDevice.onStop();
         }
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
 
 

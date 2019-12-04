@@ -17,4 +17,8 @@
 
     <color name="tertiary">#56C0B5</color>
 
+    <color name="white">#fff</color>
+
+    <color name="black">#000</color>
+
 </resources>

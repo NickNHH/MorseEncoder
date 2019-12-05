@@ -1,6 +1,6 @@
 package larsoe4.morsetranslator;
 
-import android.support.v4.content.ContextCompat;
+import android.annotation.SuppressLint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,19 +13,17 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
+    MorseEncoder morseEncoder = new MorseEncoder();
 
     //length of one tick in milliseconds
     public static final int TICK_TIME = 500;
-
-    //map of characters to their morse codes (as Strings)
-    private Map<Character, String> morseValues;
 
     //map of radio button IDs to morse output devices
     private Map<Integer, MorseDevice> morseDeviceMap;
@@ -39,10 +37,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //maps the morse code dictionary contained in a string array in strings.xml to a global HashMap
-        morseValues = new HashMap<>();
+        //map of characters to their morse codes (as Strings)
         morseDeviceMap = new TreeMap<>();
 
-        mapValues(R.array.morse_code, morseValues);
         //gives the user's text input field to a global variable
         EditText editText = findViewById(R.id.inputText);
         //adds a listener to the user's text input field to check for when they change the text
@@ -71,14 +68,22 @@ public class MainActivity extends AppCompatActivity {
     //function to translate the text that the user has put into the text field
     //and output it to the text display
     //called when the user clicks the Translate button
+    @SuppressLint("SetTextI18n")
     public void onClickTranslateInput(View view) {
         //gets the user's input text and translates it into morse code
         EditText editText = findViewById(R.id.inputText);
-        String morseString = translateText(editText.getText().toString());
 
         //sets the text display to show the morse code
         TextView textView = findViewById(R.id.message_display);
-        textView.setText(morseString);
+        try {
+            List<Primitive> primitiveList = morseEncoder.textToCode(editText.getText().toString().toUpperCase());
+            textView.setText("");
+            for (Primitive primitive : primitiveList) {
+                textView.setText(textView.getText() + primitive.getTextRepresentation());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         //enables the user to send their morse code
         setSendClickable();
@@ -90,14 +95,6 @@ public class MainActivity extends AppCompatActivity {
         RadioGroup rg = findViewById(R.id.output_radio_group);
 
         return morseDeviceMap.get(rg.getCheckedRadioButtonId());
-    }
-
-    //get the string of morse code currently ready to be translated
-    private String getMorseString() {
-        //find the message display and get its text
-        TextView textView = findViewById(R.id.message_display);
-
-        return textView.getText().toString();
     }
 
     private boolean isOutputSelected() {
@@ -138,15 +135,14 @@ public class MainActivity extends AppCompatActivity {
 
             //find which output device this message will play through
             MorseDevice morseDevice = getSelectedDevice();
-            String morseString = getMorseString();
 
             @Override
             public void run() {
                 //plays the string through whatever output device was selected
                 //continues as long as the repeat option is selected and the app is not paused
                 do {
-                    playMorseString(morseString, morseDevice);
-                    sendWordBreak(morseDevice);
+                    sendNextPrimitive(morseDevice);
+                    //playMorseString(morseString, morseDevice);
                 } while (repeatOn() && isPlaying);
 
                 //toggles the Send button to change its function back to Play
@@ -183,75 +179,35 @@ public class MainActivity extends AppCompatActivity {
         b.setText(buttonStringID);
     }
 
-    //function that takes a string in morse code and plays it
-    private void playMorseString(String morseString, MorseDevice morseDevice) {
-        char[] morseChars = morseString.toCharArray();
-        int i = 0;
+    private void sendNextPrimitive(MorseDevice morseDevice) {
+        EditText editText = findViewById(R.id.inputText);
+        MorseEncoder morseEncoder = new MorseEncoder();
+        List<Primitive> code = new ArrayList<>();
 
-        //goes through each char in the string, making sure that the thread is supposed to be running
-        while (i < morseChars.length && isPlaying) {
-            char c = morseChars[i];
-            if (c == '.') {
-                //a period (.) corresponds to a dot
-                sendDot(morseDevice);
-            } else if (c == '-') {
-                //a dash (-) corresponds to a dash
-                sendDash(morseDevice);
-            } else if (c == ' ') {
-                //a space ( ) corresponds to a space between letters
-                sendSpace(morseDevice);
-            } else if (c == '/') {
-                //a linebreak (\n) corresponds to a space between words
-                sendWordBreak(morseDevice);
-            }
-
-            //pause between letters
-            waitForTime(1);
-            i++;
+        try {
+            code = morseEncoder.textToCode(editText.getText().toString().toUpperCase());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
+        while (code.size() != 0) {
+            Primitive nextPrimitive = code.remove(0);
+
+            if (nextPrimitive.isLightOn()) {
+                lightOn(morseDevice);
+            } else {
+                lightOff(morseDevice);
+            }
+
+            setTimer(nextPrimitive.getSignalLengthInDits() * TICK_TIME);
+        }
+        // transmission finished?
+        code.size();
+        // lights should be off after the transmission
+        lightOff(morseDevice);
     }
 
-    //function to send a dot in morse code
-    private void sendDot(MorseDevice morseDevice) {
-        //a dot is 1 tick ON
-
-        morseDevice.activate();
-        waitForTime(1);
-        morseDevice.deactivate();
-    }
-
-    //function to send a dash in morse code
-    private void sendDash(MorseDevice morseDevice) {
-        //a dash is 3 ticks ON
-
-        morseDevice.activate();
-        waitForTime(3);
-        morseDevice.deactivate();
-
-    }
-
-    //function to send a space between characters in morse
-    private void sendSpace(MorseDevice morseDevice) {
-        // a space is 3 ticks OFF
-        // 2 spacers before and after the wordbreak
-        // are 1 tick each, only needs to wait 1 tick here
-
-        morseDevice.deactivate();
-        waitForTime(1);
-    }
-
-    //function to send a break between words in morse
-    private void sendWordBreak(MorseDevice morseDevice) {
-        // a wordbreak is 7 ticks OFF
-        // 2 spacers before and after the wordbreak
-        // are 1 tick each, only needs to wait 5 ticks here
-        morseDevice.deactivate();
-        waitForTime(5);
-    }
-
-    private void waitForTime(int ticks) {
-        int millis = ticks * TICK_TIME;
+    private void setTimer(int millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -259,6 +215,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void lightOn(MorseDevice morseDevice) {
+        morseDevice.activate();
+    }
+
+    private void lightOff(MorseDevice morseDevice) {
+        morseDevice.deactivate();
+    }
 
     //function checks if the program is ready to output a message in morse code
     //if it is ready, allows the user to click the Send button
@@ -286,56 +249,6 @@ public class MainActivity extends AppCompatActivity {
         CheckBox checkBox = findViewById(R.id.button_repeat);
 
         return checkBox.isChecked();
-    }
-
-    //function to take a given String and convert it into morse code
-    //returns a string of morse code
-    private String translateText(String text) {
-        StringBuilder morseBuilder = new StringBuilder();
-        //morse code has no distinctions between upper and lower case, so for simplicity's sake all input text is set to lowercase
-        char[] charArray = text.toLowerCase().toCharArray();
-
-        boolean allCharactersTranslatable = true;
-
-        //translates each character to morse code and adds it to the output string
-        for (char c : charArray) {
-            String morseForChar = morseValues.get(c);
-            if (morseForChar == null) {
-                allCharactersTranslatable = false;
-                morseBuilder.append(" ");
-            } else {
-                morseBuilder.append(morseForChar);
-            }
-
-            morseBuilder.append(" ");
-        }
-
-        if (!allCharactersTranslatable) {
-            Toast.makeText(getApplicationContext(), "Not all characters have Morse encodings", Toast.LENGTH_LONG).show();
-        }
-
-        return morseBuilder.toString();
-    }
-
-    //populate a HashMap with all the morse codes from a given stringArray in strings.xml
-    private void mapValues(int stringArrayResourceID, Map<Character, String> myMap) {
-        //creates a new String[] using a stringArray in strings.xml
-        String[] stringArray = getResources().getStringArray(stringArrayResourceID);
-
-        //goes through string array and adds each entry to the HashMap
-        for (String entry : stringArray) {
-            //uses a | as a divider between the character and its corresponding code
-            String[] splitResult = entry.split("\\|", 2);
-            //adds entry to HashMap
-
-            Log.d("PARSED ENCODING", "<" + splitResult[0] + ">\t<" + splitResult[1] + ">");
-
-            if (splitResult[0].length() > 0) {
-                myMap.put(splitResult[0].charAt(0), splitResult[1]);
-            }
-        }
-
-        Log.d("Space encoding", "<" + myMap.get(' ') + ">");
     }
 
     /*

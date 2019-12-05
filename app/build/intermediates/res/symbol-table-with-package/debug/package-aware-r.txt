@@ -11,7 +11,6 @@ anim abc_slide_out_bottom
 anim abc_slide_out_top
 anim tooltip_enter
 anim tooltip_exit
-array morse_code
 attr actionBarDivider
 attr actionBarItemBackground
 attr actionBarPopupTheme

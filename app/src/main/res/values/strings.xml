@@ -17,5 +17,6 @@
     <string name="radio_light">Flash</string>
     <string name="radio_vib">Vibrate</string>
     <string name="radio_beep">Speaker</string>
+    <string name="log">Log</string>
 
 </resources>

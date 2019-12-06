@@ -58,7 +58,7 @@
 
         <Button
             android:id="@+id/translate_button"
-            android:layout_width="138dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start|center_vertical"
             android:clickable="true"
@@ -76,12 +76,20 @@
 
         <Button
             android:id="@+id/send_button"
-            android:layout_width="138dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|center_vertical"
             android:clickable="false"
             android:onClick="onClickOutputMorse"
             android:text="@string/button_send_play" />
+
+        <Button
+            android:id="@+id/log_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="1"
+            android:text="@string/log" />
     </LinearLayout>
 
     <TextView

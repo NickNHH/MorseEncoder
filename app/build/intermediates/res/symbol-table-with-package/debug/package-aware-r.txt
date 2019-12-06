@@ -701,6 +701,7 @@ id line1
 id line3
 id listMode
 id list_item
+id log_button
 id media_actions
 id message
 id message_display
@@ -867,6 +868,7 @@ string button_repeat
 string button_send_play
 string button_send_stop
 string button_translate
+string log
 string permdesc_flashlight
 string permlab_flashlight
 string radio_beep

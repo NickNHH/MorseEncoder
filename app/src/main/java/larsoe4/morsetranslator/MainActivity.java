@@ -1,7 +1,12 @@
 package larsoe4.morsetranslator;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -14,6 +19,10 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +30,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
+    private Context context = this;
     MorseEncoder morseEncoder = new MorseEncoder();
 
     //length of one tick in milliseconds
@@ -66,6 +76,33 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+            }
+        });
+
+        // get solution button
+        Button solutionBtn = findViewById(R.id.log_button);
+        solutionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final AlertDialog.Builder inputAlert = new AlertDialog.Builder(context);
+                inputAlert.setTitle("Submit Solution");
+                inputAlert.setMessage("Solution");
+                final EditText userInput = new EditText(context);
+                inputAlert.setView(userInput);
+                inputAlert.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        log(userInput.getText().toString());
+                    }
+                });
+                inputAlert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = inputAlert.create();
+                alertDialog.show();
             }
         });
     }
@@ -331,5 +368,30 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         discoverDevices();
+    }
+
+    // Logging
+    private void log(String logmessage) {
+        Intent intent = new Intent("ch.appquest.intent.LOG");
+
+        if (getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).isEmpty()) {
+            Toast.makeText(this, "Logbook App not Installed", Toast.LENGTH_LONG).show();
+            return;
+        }
+        JSONObject result = new JSONObject();
+        try {
+            result.put("task", "Morseencoder");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            result.put("solution", logmessage);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        intent.putExtra("ch.appquest.logmessage", result.toString());
+
+        startActivity(intent);
     }
 }

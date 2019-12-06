@@ -7,24 +7,24 @@
     android:orientation="vertical"
     tools:context="MainActivity">
 
+    <View
+        android:id="@+id/blackWhiteView"
+        android:layout_width="fill_parent"
+        android:layout_height="235dp"
+        android:layout_gravity="center_horizontal|top"
+        android:focusableInTouchMode="true"
+        android:gravity="top"
+        android:hint="" />
+
     <EditText
         android:id="@+id/inputText"
         android:layout_width="fill_parent"
-        android:layout_height="100dp"
+        android:layout_height="83dp"
         android:layout_gravity="center_horizontal|top"
         android:focusableInTouchMode="true"
         android:gravity="top"
         android:hint="@string/text_field_hint"
         android:inputType="textMultiLine" />
-
-    <View
-        android:id="@+id/blackWhiteView"
-        android:layout_width="fill_parent"
-        android:layout_height="196dp"
-        android:layout_gravity="center_horizontal|top"
-        android:focusableInTouchMode="true"
-        android:gravity="top"
-        android:hint="" />
 
     <TextView
         android:id="@+id/output_select_title"
@@ -49,29 +49,11 @@
             android:text="@string/radio_light"
             android:textSize="18sp" />
 
-        <RadioButton
-            android:id="@+id/output_radio_vib"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:onClick="setSendClickable"
-            android:text="@string/radio_vib"
-            android:textSize="18sp" />
-
-        <RadioButton
-            android:id="@+id/output_radio_beep"
-            android:layout_width="133dp"
-            android:layout_height="match_parent"
-            android:clickable="false"
-            android:onClick="setSendClickable"
-            android:text="@string/radio_beep"
-            android:textSize="18sp" />
-
     </RadioGroup>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="77dp"
+        android:layout_height="64dp"
         android:orientation="horizontal">
 
         <Button

@@ -280,31 +280,7 @@ public class MainActivity extends AppCompatActivity {
     private void discoverDevices() {
 
         //get each of the radio buttons to select the output device
-        RadioButton rb_vib = findViewById(R.id.output_radio_vib);
         RadioButton rb_light = findViewById(R.id.output_radio_light);
-        RadioButton rb_beep = findViewById(R.id.output_radio_beep);
-
-        try {
-            MorseDevice vibDevice = new VibratorMorseDevice(getApplicationContext());
-            morseDeviceMap.put(R.id.output_radio_vib, vibDevice);
-
-            rb_vib.setClickable(true);
-
-        } catch (Exception e) {
-            Log.d("resourceAvailability", "MISSING:VIBRATOR");
-            rb_vib.setClickable(false);
-        }
-
-
-        try {
-            MorseDevice speakerDevice = new SpeakerMorseDevice();
-            morseDeviceMap.put(R.id.output_radio_beep, speakerDevice);
-
-            rb_beep.setClickable(true);
-        } catch (Exception e) {
-            Log.d("resourceAvailability", "MISSING:SPEAKER");
-            rb_beep.setClickable(false);
-        }
 
         try {
             MorseDevice flashlightDevice = new FlashlightMorseDevice(getApplicationContext());

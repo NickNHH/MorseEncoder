@@ -712,10 +712,8 @@ id normal
 id notification_background
 id notification_main_column
 id notification_main_column_container
-id output_radio_beep
 id output_radio_group
 id output_radio_light
-id output_radio_vib
 id output_select_title
 id packed
 id parent

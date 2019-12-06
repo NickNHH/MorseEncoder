@@ -1,4 +1,4 @@
-#Thu Dec 05 15:04:35 CET 2019
+#Thu Dec 05 16:53:30 CET 2019
 base.0=C\:\\Users\\tuni\\StudioProjects\\MorseEnconder\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\1
 path.1=classes.dex
 renamed.1=classes2.dex

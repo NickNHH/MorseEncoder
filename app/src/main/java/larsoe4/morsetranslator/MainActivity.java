@@ -1,6 +1,7 @@
 package larsoe4.morsetranslator;
 
 import android.annotation.SuppressLint;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -42,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
 
         //gives the user's text input field to a global variable
         EditText editText = findViewById(R.id.inputText);
+
+        View blackWhiteView = findViewById(R.id.blackWhiteView);
+        blackWhiteView.setBackgroundColor(ContextCompat.getColor(blackWhiteView.getContext(), R.color.black));
+
         //adds a listener to the user's text input field to check for when they change the text
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -217,10 +222,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void lightOn(MorseDevice morseDevice) {
         morseDevice.activate();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View blackWhiteView = findViewById(R.id.blackWhiteView);
+                blackWhiteView.setBackgroundColor(ContextCompat.getColor(blackWhiteView.getContext(), R.color.white));
+            }
+        });
     }
 
     private void lightOff(MorseDevice morseDevice) {
         morseDevice.deactivate();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View blackWhiteView = findViewById(R.id.blackWhiteView);
+                blackWhiteView.setBackgroundColor(ContextCompat.getColor(blackWhiteView.getContext(), R.color.black));
+            }
+        });
     }
 
     //function checks if the program is ready to output a message in morse code
